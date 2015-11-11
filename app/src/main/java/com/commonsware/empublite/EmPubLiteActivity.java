@@ -68,6 +68,12 @@ public class EmPubLiteActivity extends Activity {
                 startActivity(i);
 
                 return true;
+            case R.id.notes:
+                i = new Intent(this, NoteActivity.class);
+                i.putExtra(NoteActivity.EXTRA_POSITION, pager.getCurrentItem());
+                startActivity(i);
+
+                return true;
             case R.id.settings:
                 startActivity(new Intent(this, Preferences.class));
 
@@ -136,7 +142,6 @@ public class EmPubLiteActivity extends Activity {
 
     private void setupStrictMode() {
         StrictMode.ThreadPolicy.Builder builder = new StrictMode.ThreadPolicy.Builder()
-                .detectDiskWrites()
                 .detectNetwork();
 
         if (BuildConfig.DEBUG) {
