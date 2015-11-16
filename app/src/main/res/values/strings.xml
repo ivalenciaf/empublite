@@ -12,4 +12,5 @@
     <string name="hint">Enter notes here</string>
     <string name="notes">Notes</string>
     <string name="delete">Delete</string>
+    <string name="share">Share</string>
 </resources>
