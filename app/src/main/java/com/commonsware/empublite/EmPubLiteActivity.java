@@ -78,6 +78,10 @@ public class EmPubLiteActivity extends Activity {
                 startActivity(new Intent(this, Preferences.class));
 
                 return (true);
+            case R.id.update:
+                startService(new Intent(this, DownloadCheckService.class));
+
+                return true;
         }
 
         return super.onOptionsItemSelected(item);

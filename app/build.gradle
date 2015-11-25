@@ -19,7 +19,9 @@ repositories {
 
 dependencies {
     compile 'de.greenrobot:eventbus:2.2.1'
-    compile 'com.google.code.gson:gson:2.2.4'
-    compile 'com.squareup.retrofit:retrofit:1.6.1'
+    compile 'com.google.code.gson:gson:2.4'
+    compile 'com.squareup.retrofit:retrofit:1.9.0'
+    compile 'com.squareup.okhttp:okhttp:2.4.0'
+    //compile 'com.commonsware.cwac:security:0.5.2'
     compile 'com.android.support:support-v13:19.1.0'
 }
