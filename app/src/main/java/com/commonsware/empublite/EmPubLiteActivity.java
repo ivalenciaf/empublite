@@ -1,6 +1,7 @@
 package com.commonsware.empublite;
 
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import de.greenrobot.event.EventBus;
 
@@ -18,9 +20,19 @@ public class EmPubLiteActivity extends Activity {
     private static final String PREF_SAVE_LAST_POSITION="saveLastPosition";
     private static final String PREF_KEEP_SCREEN_ON="keepScreenOn";
 
+    private static final String TAG_HELP = "help";
+    private static final String TAG_ABOUT = "about";
+    public static final String ASSET_HELP_HTML = "file:///android_asset/misc/help.html";
+    public static final String ASSET_ABOUT_HTML = "file:///android_asset/misc/about.html";
+
     private ViewPager pager = null;
     private ContentsAdapter adapter;
     private ModelFragment mfrag = null;
+    private View sidebar = null;
+    private View divider = null;
+    private SimpleContentFragment help;
+    private SimpleContentFragment about;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +43,8 @@ public class EmPubLiteActivity extends Activity {
         setContentView(R.layout.main);
 
         pager = (ViewPager) findViewById(R.id.pager);
+        sidebar = findViewById(R.id.sidebar);
+        divider = findViewById(R.id.divider);
 
         mfrag = (ModelFragment) getFragmentManager().findFragmentByTag(MODEL);
         if (mfrag == null) {
@@ -39,7 +53,25 @@ public class EmPubLiteActivity extends Activity {
             setupPager(mfrag.getBook());
         }
 
+        help = (SimpleContentFragment) getFragmentManager().findFragmentByTag(TAG_HELP);
+        about = (SimpleContentFragment) getFragmentManager().findFragmentByTag(TAG_ABOUT);
+
         getActionBar().setHomeButtonEnabled(true);
+
+        getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                if(getFragmentManager().getBackStackEntryCount() == 0) {
+                    LinearLayout.LayoutParams p = (LinearLayout.LayoutParams) sidebar.getLayoutParams();
+                    if(p.weight > 0) {
+                        p.weight = 0;
+                        sidebar.setLayoutParams(p);
+
+                        divider.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -57,19 +89,15 @@ public class EmPubLiteActivity extends Activity {
 
                 return true;
             case R.id.help:
-                Intent i = new Intent(this, SimpleContentActivity.class);
-                i.putExtra(SimpleContentActivity.EXTRA_FILE, "file:///android_asset/misc/help.html");
-                startActivity(i);
+                showHelp();
 
                 return true;
             case R.id.about:
-                i = new Intent(this, SimpleContentActivity.class);
-                i.putExtra(SimpleContentActivity.EXTRA_FILE, "file:///android_asset/misc/about.html");
-                startActivity(i);
+                showAbout();
 
                 return true;
             case R.id.notes:
-                i = new Intent(this, NoteActivity.class);
+                Intent i = new Intent(this, NoteActivity.class);
                 i.putExtra(NoteActivity.EXTRA_POSITION, pager.getCurrentItem());
                 startActivity(i);
 
@@ -155,5 +183,54 @@ public class EmPubLiteActivity extends Activity {
         }
 
         StrictMode.setThreadPolicy(builder.build());
+    }
+
+    private void openSideBar() {
+        LinearLayout.LayoutParams p = (LinearLayout.LayoutParams) sidebar.getLayoutParams();
+
+        if(p.weight == 0) {
+            p.weight = 3;
+            sidebar.setLayoutParams(p);
+        }
+
+        divider.setVisibility(View.VISIBLE);
+    }
+
+    private void showHelp() {
+        if(sidebar != null) {
+            openSideBar();
+
+            if(help == null) {
+                help = SimpleContentFragment.newInstance(ASSET_HELP_HTML);
+                getFragmentManager().beginTransaction()
+                        .addToBackStack(null)
+                        .replace(R.id.sidebar, help, TAG_HELP)
+                        .commit();
+            }
+
+        } else {
+            Intent i = new Intent(this, SimpleContentActivity.class);
+            i.putExtra(SimpleContentActivity.EXTRA_FILE, ASSET_HELP_HTML);
+            startActivity(i);
+        }
+    }
+
+    private void showAbout() {
+        if(sidebar != null) {
+            openSideBar();
+
+            if(about == null) {
+                about = SimpleContentFragment.newInstance(ASSET_ABOUT_HTML);
+                getFragmentManager().beginTransaction()
+                        .addToBackStack(null)
+                        .replace(R.id.sidebar, about, TAG_ABOUT)
+                        .commit();
+            }
+
+        } else {
+            Intent i = new Intent(this, SimpleContentActivity.class);
+            i.putExtra(SimpleContentActivity.EXTRA_FILE, ASSET_ABOUT_HTML);
+            startActivity(i);
+        }
     }
 }
